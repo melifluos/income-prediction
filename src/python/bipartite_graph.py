@@ -17,7 +17,7 @@ class BipartiteGraph:
     A binary graph
     """
 
-    def __init__(self, adj=np.array([])):
+    def __init__(self, adj=np.array([]), shuffle_walks=True):
         try:
             self.adj = adj.tocsr()
             self.row_deg = np.array(adj.sum(axis=1), dtype=int).squeeze()
@@ -26,6 +26,7 @@ class BipartiteGraph:
             self.n_cols = len(self.col_deg)
             self.row_edges = np.zeros(shape=(self.n_rows, max(self.row_deg)), dtype=np.uint32)
             self.col_edges = np.zeros(shape=(self.n_cols, max(self.col_deg)), dtype=np.uint32)
+            self.shuffle_walks = shuffle_walks
             print 'generated row_edges of shape {0} and column edges of shape {1}'.format(self.row_edges.shape,
                                                                                           self.col_edges.shape)
         except:
@@ -96,8 +97,9 @@ class BipartiteGraph:
         # is taking 2 steps at a time
         walks = np.zeros(shape=(self.n_rows * num_walks, walk_length + 1), dtype=np.uint32)
         walk_starts = np.tile(initial_vertices, num_walks)
-        print 'shuffling walks to improve SGD conversion later'
-        np.random.shuffle(walk_starts)
+        if self.shuffle_walks:
+            print 'shuffling walks to improve SGD conversion later'
+            np.random.shuffle(walk_starts)
         walks[:, 0] = walk_starts
         print 'constructed random walk array of shape {0}'.format(walks.shape)
         return walks
@@ -228,10 +230,35 @@ def generate_2step_embedding(window_size):
     print datetime.now() - s, ' s'
 
 
+def generate_walks(num_walks, walk_length, shuffle):
+    """
+    write random walks to file for later use
+    :param num_walks: the number of walks originating at each vertex
+    :param walk_length: the length of each walk
+    :param shuffle: whether to shuffle the walks, this helps SGD, but makes it harder to slice the walks for parameter
+    sensitivity experiments
+    :return: None
+    """
+    print 'reading data'
+    x, y = utils.read_data('../../local_resources/income_dataset/X_thresh10.p',
+                           '../../local_resources/income_dataset/y_thresh10.p', 0)
+    s = datetime.now()
+    g = BipartiteGraph(x, shuffle)
+    print 'building edges'
+    g.build_edge_array()
+    print 'generating walks'
+    walks = g.generate_walks(num_walks, walk_length)
+    outpath = '../../local_results/thresh10_walks_length_{}_num_walks_{}.csv'.format(walk_length, num_walks)
+    print walks.shape
+    df = pd.DataFrame(walks)
+    df.to_csv(outpath, index=False,
+              header=None)
+
+
 def scenario_build_income_embeddings():
     print 'reading data'
-    x, y = utils.read_data('local_resources/income_dataset/X_thresh10.p',
-                           'local_resources/income_dataset/y_thresh10.p', 0)
+    x, y = utils.read_data('../../local_resources/income_dataset/X_thresh10.p',
+                           '../../local_resources/income_dataset/y_thresh10.p', 0)
     s = datetime.now()
     g = BipartiteGraph(x)
     print 'building edges'
@@ -239,11 +266,11 @@ def scenario_build_income_embeddings():
     print 'generating walks'
     walks = g.generate_walks(10, 80)
     g.learn_embeddings(walks, 64,
-                       'local_resources/income_dataset/thresh10_64.emd')
+                       '../../local_results/thresh10_64.emd')
     print datetime.now() - s, ' s'
     print walks.shape
     df = pd.DataFrame(walks)
-    df.to_csv('local_resources/income_dataset/thresh10_walks.csv', index=False,
+    df.to_csv('../../local_results/thresh10_walks.csv', index=False,
               header=None)
 
 
@@ -270,13 +297,13 @@ def reindex_embeddings():
     changes the first column of embeddings from an index to a Twitter ID
     :return:
     """
-    y_path = 'local_resources/Socio_economic_classification_data/income_dataset/y_thresh10.p'
+    y_path = '../../local_resources/income_dataset/y_thresh10.p'
     target = utils.read_target(y_path)
     sizes = [16, 32, 64, 128]
 
     for size in sizes:
         print 'running embeddings of size ', size
-        emd_path = 'local_resources/Socio_economic_classification_data/income_dataset/thresh10_{0}.emd'.format(size)
+        emd_path = '../../local_resources/Socio_economic_classification_data/income_dataset/thresh10_{0}.emd'.format(size)
         x = utils.read_embedding(emd_path, target)
         df = pd.DataFrame(data=x, index=target.index)
         try:
@@ -287,6 +314,7 @@ def reindex_embeddings():
 
 
 if __name__ == '__main__':
-    scenario_build_income_embeddings
+    generate_walks(20, 100, shuffle=False)
+    # scenario_build_income_embeddings()
     # scenario_build_different_size_income_embeddings()
     # reindex_embeddings()
