@@ -173,70 +173,6 @@ def scenario_debug():
     print walks.shape
 
 
-def scenario_build_small_age_embedding():
-    print 'reading data'
-    x, y = utils.read_data('resources/test/X.p', 'resources/test/y.p', 1)
-    s = datetime.now()
-    g = BipartiteGraph(x)
-    print 'building edges'
-    g.build_edge_array()
-    print 'generating walks'
-    walks = g.generate_walks(10, 80)
-    g.learn_embeddings(walks, 128, 'resources/test/test128.emd')
-    print datetime.now() - s, ' s'
-    print walks.shape
-    df = pd.DataFrame(walks)
-    df.to_csv('resources/test/walks.csv', index=False, header=None)
-
-
-def scenario_build_large_age_embedding():
-    print 'reading data'
-    x, y = utils.read_data('resources/test/X_large.p', 'resources/test/y_large.p', 1)
-    s = datetime.now()
-    g = BipartiteGraph(x)
-    print 'building edges'
-    g.build_edge_array()
-    print 'generating walks'
-    walks = g.generate_walks(10, 80)
-    g.learn_embeddings(walks, 128, 'resources/test/test128_large.emd')
-    print datetime.now() - s, ' s'
-    print walks.shape
-    df = pd.DataFrame(walks)
-    df.to_csv('resources/test/walks_large.csv', index=False, header=None)
-
-
-def scenario_build_balanced6_embeddings():
-    print 'reading data'
-    x, y = utils.read_data('resources/test/balanced6X.p', 'resources/test/balanced6y.p', 1)
-    s = datetime.now()
-    g = BipartiteGraph(x)
-    print 'building edges'
-    g.build_edge_array()
-    print 'generating walks'
-    walks = g.generate_walks(10, 80)
-    g.learn_embeddings(walks, 128, 'resources/test/balanced6.emd')
-    print datetime.now() - s, ' s'
-    print walks.shape
-    df = pd.DataFrame(walks)
-    df.to_csv('resources/test/balanced6_walks.csv', index=False, header=None)
-
-
-def scenario_build_balanced7_embeddings():
-    print 'reading data'
-    x, y = utils.read_data('resources/test/balanced7X.p', 'resources/test/balanced7y.p', 1)
-    s = datetime.now()
-    g = BipartiteGraph(x)
-    print 'building edges'
-    g.build_edge_array()
-    print 'generating walks'
-    walks = g.generate_walks(10, 80)
-    g.learn_embeddings(walks, 128, 'resources/test/balanced7.emd')
-    print datetime.now() - s, ' s'
-    print walks.shape
-    df = pd.DataFrame(walks)
-    df.to_csv('resources/test/balanced7_walks.csv', index=False, header=None)
-
-
 def scenario_vary_window_embeddings():
     print 'reading data'
     x, y = utils.read_data('resources/test/balanced7_100_thresh_X.p', 'resources/test/balanced7_100_thresh_y.p', 1)
@@ -292,48 +228,10 @@ def generate_2step_embedding(window_size):
     print datetime.now() - s, ' s'
 
 
-def generate_balanced7_embedding(window_size):
-    s = datetime.now()
-    walks_df = pd.read_csv('resources/test/balanced7_100_thresh_walks.csv', header=None)
-    walks = walks_df.values
-    print 'embedding window length {}'.format(window_size)
-    g = BipartiteGraph()
-    g.learn_embeddings(walks, 128, 'resources/test/balanced7_window' + str(window_size) + '.emd',
-                       window_size)
-    print datetime.now() - s, ' s'
-
-
-def generate_balanced7_10_thresh_embedding(window_size):
-    s = datetime.now()
-    walks_df = pd.read_csv('resources/test/balanced7_10_thresh_window_' + str(window_size) + 'walks.csv', header=None)
-    walks = walks_df.values
-    print 'embedding window length {}'.format(window_size)
-    g = BipartiteGraph()
-    g.learn_embeddings(walks, 128, 'resources/test/balanced7_10_thresh_window_' + str(window_size) + '.emd',
-                       window_size)
-    print datetime.now() - s, ' s'
-
-
-def scenario_build_balanced7_10_thresh_embeddings():
-    print 'reading data'
-    x, y = utils.read_data('resources/test/balanced7_10_thresh_X.p', 'resources/test/balanced7_10_thresh_y.p', 0)
-    s = datetime.now()
-    g = BipartiteGraph(x)
-    print 'building edges'
-    g.build_edge_array()
-    print 'generating walks'
-    walks = g.generate_walks(10, 80)
-    g.learn_embeddings(walks, 128, 'resources/test/balanced7_10_thresh.emd')
-    print datetime.now() - s, ' s'
-    print walks.shape
-    df = pd.DataFrame(walks)
-    df.to_csv('resources/test/balanced7_10_thresh_walks.csv', index=False, header=None)
-
-
 def scenario_build_income_embeddings():
     print 'reading data'
-    x, y = utils.read_data('local_resources/Socio_economic_classification_data/income_dataset/X_thresh10.p',
-                           'local_resources/Socio_economic_classification_data/income_dataset/y_thresh10.p', 0)
+    x, y = utils.read_data('local_resources/income_dataset/X_thresh10.p',
+                           'local_resources/income_dataset/y_thresh10.p', 0)
     s = datetime.now()
     g = BipartiteGraph(x)
     print 'building edges'
@@ -341,11 +239,11 @@ def scenario_build_income_embeddings():
     print 'generating walks'
     walks = g.generate_walks(10, 80)
     g.learn_embeddings(walks, 64,
-                       'local_resources/Socio_economic_classification_data/income_dataset/thresh10_64.emd')
+                       'local_resources/income_dataset/thresh10_64.emd')
     print datetime.now() - s, ' s'
     print walks.shape
     df = pd.DataFrame(walks)
-    df.to_csv('local_resources/Socio_economic_classification_data/income_dataset/thresh10_walks.csv', index=False,
+    df.to_csv('local_resources/income_dataset/thresh10_walks.csv', index=False,
               header=None)
 
 
@@ -389,5 +287,6 @@ def reindex_embeddings():
 
 
 if __name__ == '__main__':
-    scenario_build_different_size_income_embeddings()
-    reindex_embeddings()
+    scenario_build_income_embeddings
+    # scenario_build_different_size_income_embeddings()
+    # reindex_embeddings()
