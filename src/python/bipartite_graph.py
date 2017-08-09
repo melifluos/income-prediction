@@ -140,7 +140,7 @@ class BipartiteGraph:
         # little hack to make the right length walk
         return walks[:, :-1]
 
-    def learn_embeddings(self, walks, size, outpath, window_size=10):
+    def learn_embeddings(self, walks, size, outpath, window_size=10, epochs=5):
         """
         learn a word2vec embedding using the gensim library.
         :param walks: An array of random walks of shape (num_walks, walk_length)
@@ -153,7 +153,7 @@ class BipartiteGraph:
         walk_list = walk_str.tolist()
 
         model = Word2Vec(walk_list, size=size, window=window_size, min_count=0, sg=1, workers=4,
-                         iter=5)
+                         iter=epochs)
         model.wv.save_word2vec_format(outpath)
 
 
@@ -255,7 +255,7 @@ def generate_walks(num_walks, walk_length, shuffle):
               header=None)
 
 
-def scenario_build_income_embeddings():
+def scenario_build_income_embeddings(num_walks=10, walk_length=80, emd_dimension=32):
     print 'reading data'
     x, y = utils.read_data('../../local_resources/income_dataset/X_thresh10.p',
                            '../../local_resources/income_dataset/y_thresh10.p', 0)
@@ -264,14 +264,15 @@ def scenario_build_income_embeddings():
     print 'building edges'
     g.build_edge_array()
     print 'generating walks'
-    walks = g.generate_walks(10, 80)
-    g.learn_embeddings(walks, 64,
-                       '../../local_results/thresh10_64.emd')
+    walks = g.generate_walks(num_walks, walk_length)
+    outpath = '../../local_results/thresh10_num_{}_length_{}_dimension_{}.emd'.format(num_walks, walk_length,
+                                                                                      emd_dimension)
+    g.learn_embeddings(walks, emd_dimension, outpath, epochs=10)
     print datetime.now() - s, ' s'
     print walks.shape
     df = pd.DataFrame(walks)
-    df.to_csv('../../local_results/thresh10_walks.csv', index=False,
-              header=None)
+    walk_path = '../../local_results/walks_thresh10_num_{}_length_{}'.format(num_walks, walk_length)
+    df.to_csv(walk_path, index=False, header=None)
 
 
 def scenario_build_different_size_income_embeddings():
@@ -342,7 +343,8 @@ def scenario_vary_walks_and_context():
 def change_index(emd_path, target):
     """
     change the embeding index to be Twitter IDs
-    :param emd_path:
+    :param emd_path: the path to the embedding file
+    :param target: a pandas DataFrame containing the labels indexed by Twitter IDs
     :return: None
     """
     x = utils.read_embedding(emd_path, target)
@@ -365,7 +367,7 @@ def reindex_embeddings():
 
     for size in sizes:
         print 'running embeddings of size ', size
-        emd_path = '../../local_resources/Socio_economic_classification_data/income_dataset/thresh10_{0}.emd'.format(
+        emd_path = '../../local_results/income_dataset/thresh10_{0}.emd'.format(
             size)
         x = utils.read_embedding(emd_path, target)
         df = pd.DataFrame(data=x, index=target.index)
@@ -377,7 +379,10 @@ def reindex_embeddings():
 
 
 if __name__ == '__main__':
-    scenario_vary_walks_and_context()
+    scenario_build_income_embeddings(emd_dimension=2)
+    target = utils.read_target('../../local_resources/income_dataset/y_thresh10.p')
+    change_index('../../local_results/thresh10_num_10_length_80_dimension_2.emd', target)
+    # scenario_vary_walks_and_context()
     # generate_walks(20, 100, shuffle=False)
     # scenario_build_income_embeddings()
     # scenario_build_different_size_income_embeddings()

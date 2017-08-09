@@ -12,30 +12,34 @@ import matplotlib.pyplot as plt
 def tsne_plot():
     model = TSNE(n_components=2, random_state=0)
 
-    x_path = 'resources/test/X.p'
-    y_path = 'resources/test/y.p'
-    emd_path = 'resources/test/test64.emd'
+    x_path = '../../local_resources/income_dataset/X_thresh10.p'
+    y_path = '../../local_resources/income_dataset/y_thresh10.p'
+    emd_path = '../../local_results/dimension_32_num_10_length_80_context_10.emd'
+    outpath = '../../local_results/figures/tsne.pdf'
 
     X, y = utils.read_data(x_path, y_path, threshold=10)
 
     target = utils.read_target(y_path)
-    X1 = utils.read_embedding(emd_path, target, 64)
-    embedding = model.fit_transform(X1)
+    emd = pd.read_csv(emd_path, header=None, index_col=0, skiprows=1, sep=",")
+    embedding = model.fit_transform(emd)
 
     # sb.set_context("notebook", font_scale=1.1)
     sns.set_style("ticks")
 
-    print X1.shape
+    print 'embedding shape is ', embedding.shape
 
     df = pd.DataFrame(data=embedding, index=None, columns=['x', 'y'])
-    df['label'] = y
+    labels = np.array(target.loc[emd.index].mean_income)
+    df['label'] = labels
 
-    sns.lmplot('x', 'y',
-               data=df,
-               fit_reg=False,
-               hue="label",
-               scatter_kws={"marker": "D",
-                            "s": 100})
+    plot = sns.lmplot('x', 'y',
+                      data=df,
+                      fit_reg=False,
+                      hue="label",
+                      scatter_kws={"marker": "D",
+                                   "s": 100})
+
+    plot.savefig(outpath)
 
 
 def f1_line_plots(paths):
@@ -58,19 +62,18 @@ def f1_line_plots(paths):
 
 def plot_embedding(embedding, labels, path):
     colours = labels
-    plt.scatter(embedding[:, 0], embedding[:, 1], c=colours, alpha=0.5)
+    plt.scatter(embedding[:, 0], embedding[:, 1], c=colours, alpha=0.4)
     vert_labs = xrange(1, len(labels) + 1)
     for vert_lab, x, y in zip(vert_labs, embedding[:, 0], embedding[:, 1]):
         plt.annotate(
             vert_lab,
             xy=(x, y), xytext=(-2, 2),
-            textcoords='offset points', ha='right', va='bottom', fontsize=8) \
-            # bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5),
-        # arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0'))
+            textcoords='offset points', ha='right', va='bottom', fontsize=8)
     plt.savefig(path)
     plt.clf()
 
 
 if __name__ == '__main__':
-    paths = ['results/age/graphs/avg_macro0.920170108-213545.csv', 'results/age/graphs/avg_micro0.920170108-213545.csv']
-    f1_line_plots(paths)
+    tsne_plot()
+    # paths = ['results/age/graphs/avg_macro0.920170108-213545.csv', 'results/age/graphs/avg_micro0.920170108-213545.csv']
+    # f1_line_plots(paths)

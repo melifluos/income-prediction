@@ -348,21 +348,7 @@ def read_mat(path):
     return data['network'], data['group']
 
 
-def read_roberto_embedding(path, target, size):
-    """
-    Reads an embedding from text into a matrix
-    :param path: the location of the embedding file
-    :param size: the number of dimensions of the embedding eg. 64
-    :param target: the target variables containing the indices to use
-    :return:
-    """
-    data = pd.read_csv(path, header=None, index_col=0, skiprows=0, names=np.arange(size), sep=" ")
-    # make sure the features are in the same order as the targets
-    data = data.ix[target['fan_idx']]
-    return data.as_matrix()
-
-
-def read_embedding(path, target, size=None):
+def read_embedding(path, target):
     """
     Reads an embedding from text into a matrix
     :param path: the location of the embedding file
