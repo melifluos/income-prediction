@@ -303,36 +303,55 @@ def scenario_vary_walks_and_context():
     # g.build_edge_array()
     all_walks = pd.read_csv('../../local_results/thresh10_walks_length_100_num_walks_20.csv',
                             header=None).values
+    target = utils.read_target('../../local_resources/income_dataset/y_thresh10.p')
 
     num_walks = [6, 8, 10, 12, 14, 16, 18, 20]
     print 'running number of walks loop'
     for n_walks in num_walks:
         walks = all_walks[0:n_walks * n_vertices, 0:80]
-        print 'walk shape is ',walks.shape
+        print 'walk shape is ', walks.shape
         outpath = '../../local_results/dimension_32_num_{}_length_10_context_10.emd'.format(n_walks)
         np.random.shuffle(walks)
         g.learn_embeddings(walks, size=32, outpath=outpath, window_size=10)
+        change_index(outpath, target)
         print 'number of walks ', str(n_walks), ' embeddings generated in ', datetime.now() - s, ' s'
 
     walk_lengths = [40, 50, 60, 70, 80, 90, 100]
     print 'running walk length loop'
     for walk_length in walk_lengths:
         walks = all_walks[0:10 * n_vertices, 0:walk_length]
-        print 'walk shape is ',walks.shape
+        print 'walk shape is ', walks.shape
         outpath = '../../local_results/dimension_32_num_10_length_{}_context_10.emd'.format(walk_length)
         np.random.shuffle(walks)
         g.learn_embeddings(walks, size=32, outpath=outpath, window_size=10)
+        change_index(outpath, target)
         print 'length ', str(walk_length), ' embeddings generated in ', datetime.now() - s, ' s'
 
     context_size = [8, 10, 12, 14, 16, 18, 20]
     print 'running context size loop'
     for size in context_size:
         walks = all_walks[0:10 * n_vertices, 0:80]
-        print 'walk shape is ',walks.shape
+        print 'walk shape is ', walks.shape
         outpath = '../../local_results/dimension_32_num_10_length_80_context_{}.emd'.format(size)
         np.random.shuffle(walks)
         g.learn_embeddings(walks, size=32, outpath=outpath, window_size=size)
+        change_index(outpath, target)
         print 'context size ', str(size), ' embeddings generated in ', datetime.now() - s, ' s'
+
+
+def change_index(emd_path, target):
+    """
+    change the embeding index to be Twitter IDs
+    :param emd_path:
+    :return: None
+    """
+    x = utils.read_embedding(emd_path, target)
+    df = pd.DataFrame(data=x, index=target.index)
+    try:
+        del df.index.name
+    except AttributeError:
+        pass
+    df.to_csv(emd_path)
 
 
 def reindex_embeddings():
