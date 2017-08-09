@@ -7,6 +7,7 @@ from sklearn.manifold import TSNE
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def tsne_plot():
@@ -31,15 +32,25 @@ def tsne_plot():
     df = pd.DataFrame(data=embedding, index=None, columns=['x', 'y'])
     labels = np.array(target.loc[emd.index].mean_income)
     df['label'] = labels
+    df.to_csv('../../local_results/tsne.csv', index=None)
 
     plot = sns.lmplot('x', 'y',
                       data=df,
                       fit_reg=False,
                       hue="label",
                       scatter_kws={"marker": "D",
-                                   "s": 100})
+                                   "s": 10})
 
     plot.savefig(outpath)
+
+
+def plot_tsne_df():
+    tsne = pd.read_csv('../../local_results/tsne.csv')
+    med = tsne.label.median()
+    tsne['colour'] = (tsne.label > med).astype(int)
+    plot = tsne.plot.scatter('x', 'y', color=tsne.colour, s=10)
+    fig = plot.get_figure()
+    fig.savefig('../../local_results/figures/tsne.pdf')
 
 
 def f1_line_plots(paths):
