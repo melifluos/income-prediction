@@ -21,8 +21,10 @@ For privacy reasons we can't include the raw Twitter data. Instead we include a 
 
 This file is a pickled scipy sparse matrix containing the the ego-networks of all users that have income / occupation labels as described in the paper, but thresholded to only include accounts with at least 10 connections.
 
-To read the data 
+To read the data:
+
 import pandas
+
 x = pd.read_pickle('X_thresh10.p')
 
 To increase the general utility of the code, we also include the income lables as income_y.p in the resources folder, which is a pandas pickle file of a pandas dataframe.
