@@ -1,10 +1,5 @@
 """
-utility functions for detection of age of Twitter users
-TODO:
-- Construct two files sorted by fan_idx
-1/ fan_idx star_idx
-2/ fan_idx cat
-- Use these to construct sparse matrix and target values.
+utility functions
 """
 
 from scipy.sparse import lil_matrix
