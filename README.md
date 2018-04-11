@@ -31,7 +31,7 @@ To increase the general utility of the code, we also include the income lables a
 
 ## Authors
 
-**Ben Chamberlain**
+**Ben Chamberlain** and 
 **Nikolaos Aletras**
 
 ## Citation
