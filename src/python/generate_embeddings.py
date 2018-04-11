@@ -49,10 +49,10 @@ if __name__ == '__main__':
         print 'generating walks'
         walks = g.generate_walks(args.num_walks, args.walk_length)
         df = pd.DataFrame(walks)
-        walk_path = '../../local_results/walks_thresh10_num_{}_length_{}'.format(args.num_walks, args.walk_length)
+        walk_path = '../../local_resources/walks_thresh10_num_{}_length_{}'.format(args.num_walks, args.walk_length)
         df.to_csv(walk_path, index=False, header=None)
     else:
         print 'learning embeddings'
         walks = pd.read_csv(args.walk_path,
                             header=None).values
-        g.learn_embeddings(walks, size, args.out_path)
+    g.learn_embeddings(walks, size, args.out_path)
