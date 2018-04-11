@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument(
         'walk_path', type=str,
         nargs='?', default="",
-        help='the location of the random walk data. The default is to generate new random walks to local_resources/walks.csv')
+        help='the location of the random walk data. The default is to generate new random walks in local_resources')
 
     parser.add_argument(
         '--size', type=int,
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         print 'generating walks'
         walks = g.generate_walks(args.num_walks, args.walk_length)
         df = pd.DataFrame(walks)
-        walk_path = '../../local_resources/walks_thresh10_num_{}_length_{}'.format(args.num_walks, args.walk_length)
+        walk_path = 'local_resources/walks_thresh10_num_{}_length_{}'.format(args.num_walks, args.walk_length)
         df.to_csv(walk_path, index=False, header=None)
     else:
         print 'learning embeddings'
