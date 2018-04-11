@@ -382,8 +382,4 @@ if __name__ == '__main__':
     scenario_build_income_embeddings(emd_dimension=2)
     target = utils.read_target('../../local_resources/income_dataset/y_thresh10.p')
     change_index('../../local_results/thresh10_num_10_length_80_dimension_2.emd', target)
-    # scenario_vary_walks_and_context()
-    # generate_walks(20, 100, shuffle=False)
-    # scenario_build_income_embeddings()
-    # scenario_build_different_size_income_embeddings()
-    # reindex_embeddings()
+

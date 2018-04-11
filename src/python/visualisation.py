@@ -1,5 +1,5 @@
 """
-Visualise age data
+plots for income detection
 """
 
 import utils
@@ -53,7 +53,7 @@ def plot_tsne_df():
     fig.savefig('../../local_results/figures/tsne.pdf')
 
 
-def f1_line_plots(paths):
+def f1_line_plots(paths, outpath):
     """
     generate macro and micro F1 line plots
     :param paths: paths to the results csv tables
@@ -68,7 +68,7 @@ def f1_line_plots(paths):
     micro_df.transpose().plot(ax=axarr[1])
     axarr[1].set_ylabel('micro F1')
     axarr[1].set_xlabel('% of labelled data')
-    f.savefig('results/age/graphs/f1_line_plots' + utils.get_timestamp() + '.pdf')
+    f.savefig(outpath)
 
 
 def plot_embedding(embedding, labels, path):
@@ -86,5 +86,4 @@ def plot_embedding(embedding, labels, path):
 
 if __name__ == '__main__':
     tsne_plot()
-    # paths = ['results/age/graphs/avg_macro0.920170108-213545.csv', 'results/age/graphs/avg_micro0.920170108-213545.csv']
-    # f1_line_plots(paths)
+

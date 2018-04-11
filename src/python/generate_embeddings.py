@@ -55,4 +55,4 @@ if __name__ == '__main__':
         print 'learning embeddings'
         walks = pd.read_csv(args.walk_path,
                             header=None).values
-    g.learn_embeddings(walks, size, args.out_path)
+    g.learn_embeddings(walks, size, args.out_path[0])
